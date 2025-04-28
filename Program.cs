@@ -170,7 +170,7 @@ app.MapGet("api/minerals/{id}", (int id) =>
     });
 });
 
-//Fetches a facility by id
+//Fetches a Facility by id
 app.MapGet("api/facilities/{id}", (int id) =>
 {
     Facility facility = facilities.FirstOrDefault(f => f.Id == id);
@@ -317,4 +317,30 @@ app.MapPost("/colonyMinerals", (ColonyMineral colonyMineral) => {
 app.Run();
 
 
+app.MapGet("api/colonyMinerals/colony/{colonyId}", (int colonyId) => {
+    
+    ColonyMineral colonyMineral = colonyMinerals.FirstOrDefault(cm => cm.ColonyId == colonyId);
+
+    if (colonyMineral == null)
+    {
+        return Results.NotFound($"No colony mineral found with colony ID");
+    }
+
+    Mineral mineral = minerals.FirstOrDefault(m => m.Id == colonyMineral.MineralId);
+
+    return Results.Ok( new ColonyMineralDTO {
+        Id = colonyMineral.Id,
+        ColonyId = colonyMineral.ColonyId,
+        MineralId= colonyMineral.MineralId,
+        ColonyTons = colonyMineral.ColonyTons,
+        Mineral = mineral == null ? null : new MineralDTO {
+            Id = mineral.Id,
+            Name = mineral.Name
+        }
+
+
+
+    });
+});
 app.Run();
+
