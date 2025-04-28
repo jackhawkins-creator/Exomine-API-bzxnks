@@ -42,11 +42,11 @@ List<Mineral> minerals = new List<Mineral>
 
 List<FacilityMineral> facilityMinerals = new List<FacilityMineral>
 {
-    new FacilityMineral { Id = 1, MineralId = 1, FacilitiesId = 3, FacilityTons = 25 },
-    new FacilityMineral { Id = 2, MineralId = 4, FacilitiesId = 5, FacilityTons = 40 },
-    new FacilityMineral { Id = 3, MineralId = 2, FacilitiesId = 1, FacilityTons = 30 },
-    new FacilityMineral { Id = 4, MineralId = 3, FacilitiesId = 4, FacilityTons = 30 },
-    new FacilityMineral { Id = 5, MineralId = 5, FacilitiesId = 2, FacilityTons = 40 }
+    new FacilityMineral { Id = 1, MineralId = 1, FacilityId = 3, FacilityTons = 25 },
+    new FacilityMineral { Id = 2, MineralId = 4, FacilityId = 5, FacilityTons = 40 },
+    new FacilityMineral { Id = 3, MineralId = 2, FacilityId = 1, FacilityTons = 30 },
+    new FacilityMineral { Id = 4, MineralId = 3, FacilityId = 4, FacilityTons = 30 },
+    new FacilityMineral { Id = 5, MineralId = 5, FacilityId = 2, FacilityTons = 40 }
 };
 
 List<Facility> facilities = new List<Facility>
@@ -100,7 +100,7 @@ app.MapGet("/api/facilities", () =>
 
 
 //fetch ALL colonyMinerals
-app.MapGet("/api/colonyminerals", () =>
+app.MapGet("/api/colonyMinerals", () =>
 {
     return colonyMinerals.Select(cm => new ColonyMineralDTO
     {
@@ -112,89 +112,148 @@ app.MapGet("/api/colonyminerals", () =>
 });
 
 //fetch ALL facilityMinerals
-app.MapGet("/api/facilityminerals", () =>
+
+app.MapGet("/api/facilityMinerals", (int? facilityId, int? mineralId, string? expand) =>
 {
-    return facilityMinerals.Select(fm => new FacilityMineralDTO
+    List<FacilityMineral> joinTables = facilityMinerals.ToList();
+
+    if (facilityId != null || mineralId != null)
     {
-        Id = fm.Id,
-        MineralId = fm.MineralId,
-        FacilitiesId = fm.FacilitiesId,
-        FacilityTons = fm.FacilityTons
+        joinTables = joinTables.Where(jt =>
+        (facilityId == null || jt.FacilityId == facilityId) &&
+        (mineralId == null || jt.MineralId == mineralId)
+        ).ToList();
+    }
+
+    if (expand == null) {
+        expand = "";
+    }
+
+    return joinTables.Select(jt =>
+    {
+        Mineral m = minerals.FirstOrDefault(m => m.Id == jt.MineralId);
+        Facility f = facilities.FirstOrDefault(f => f.Id == jt.FacilityId);
+
+        return new FacilityMineralDTO
+        {
+            Id = jt.Id,
+            MineralId = jt.MineralId,
+            FacilityId = jt.FacilityId,
+            FacilityTons = jt.FacilityTons,
+            Mineral = expand.Contains("mineral") && m != null ? new MineralDTO
+            {
+                Id = m.Id,
+                Name = m.Name
+            } : null,
+            Facility = expand.Contains("facility") && m != null ? new FacilityDTO
+            {
+                Id = f.Id,
+                Name = f.Name
+            } : null
+        };
     });
 });
 
 //Fetches a mineral by id
 app.MapGet("api/minerals/{id}", (int id) =>
 {
-Mineral mineral = minerals.FirstOrDefault(m => m.Id == id);
-if (mineral == null)
-{
-    return Results.NotFound();
-}
+    Mineral mineral = minerals.FirstOrDefault(m => m.Id == id);
+    if (mineral == null)
+    {
+        return Results.NotFound();
+    }
 
-return Results.Ok(new MineralDTO
-{
-    Id = mineral.Id,
-    Name = mineral.Name,
-});
+    return Results.Ok(new MineralDTO
+    {
+        Id = mineral.Id,
+        Name = mineral.Name,
+    });
 });
 
 //Fetches a Facility by id
 app.MapGet("api/facilities/{id}", (int id) =>
 {
-Facility facility = facilities.FirstOrDefault(f => f.Id == id);
-if (facility == null)
-{
-    return Results.NotFound();
-}
+    Facility facility = facilities.FirstOrDefault(f => f.Id == id);
+    if (facility == null)
+    {
+        return Results.NotFound();
+    }
 
-return Results.Ok(new FacilityDTO
-{
-    Id = facility.Id,
-    Name = facility.Name,
-    Active = facility.Active
-});
+    return Results.Ok(new FacilityDTO
+    {
+        Id = facility.Id,
+        Name = facility.Name,
+        Active = facility.Active
+    });
 });
 
 //Fetches ColonyMineral by Id
 app.MapGet("api/colonyMinerals/{id}", (int id) =>
 {
-ColonyMineral colonyMineral = colonyMinerals.FirstOrDefault(cm => cm.Id == id);
-if (colonyMineral == null)
-{
-    return Results.NotFound();
-}
+    ColonyMineral colonyMineral = colonyMinerals.FirstOrDefault(cm => cm.Id == id);
+    if (colonyMineral == null)
+    {
+        return Results.NotFound();
+    }
 
-return Results.Ok(new ColonyMineralDTO
-{
-    Id = colonyMineral.Id,
-    ColonyId = colonyMineral.ColonyId,
-    MineralId = colonyMineral.MineralId,
-    ColonyTons = colonyMineral.ColonyTons
+    return Results.Ok(new ColonyMineralDTO
+    {
+        Id = colonyMineral.Id,
+        ColonyId = colonyMineral.ColonyId,
+        MineralId = colonyMineral.MineralId,
+        ColonyTons = colonyMineral.ColonyTons
 
 
-});
+    });
 });
 
 //Fetches a FacilityMineral by id
 app.MapGet("api/facilityMinerals/{id}", (int id) =>
 {
-FacilityMineral facilityMineral = facilityMinerals.FirstOrDefault(fm => fm.Id == id);
-if (facilityMineral == null)
-{
-    return Results.NotFound();
-}
+    FacilityMineral facilityMineral = facilityMinerals.FirstOrDefault(fm => fm.Id == id);
+    if (facilityMineral == null)
+    {
+        return Results.NotFound();
+    }
 
-return Results.Ok(new FacilityMineralDTO
-{
-    Id = facilityMineral.Id,
-    MineralId = facilityMineral.MineralId,
-    FacilitiesId = facilityMineral.FacilitiesId,
-    FacilityTons = facilityMineral.FacilityTons
+    return Results.Ok(new FacilityMineralDTO
+    {
+        Id = facilityMineral.Id,
+        MineralId = facilityMineral.MineralId,
+        FacilityId = facilityMineral.FacilityId,
+        FacilityTons = facilityMineral.FacilityTons
 
 
+    });
 });
+
+// Fetch a single governor with their colony
+app.MapGet("/api/governors/{id}", (int id) =>
+{
+    Governor governor = governors.FirstOrDefault(g => g.Id == id);
+    if (governor == null)
+    {
+        return Results.NotFound();
+    }
+
+
+    Colony colony = colonies.FirstOrDefault(c => c.Id == governor.ColonyId);
+    var colonyDTO = colony != null ? new ColonyDTO { Id = colony.Id, Name = colony.Name } : null;
+
+
+    var governorDTO = new GovernorDTO
+    {
+        Id = governor.Id,
+        Name = governor.Name,
+        Active = governor.Active,
+        ColonyId = governor.ColonyId,
+        Colonies = colonyDTO != null ? new List<ColonyDTO> { colonyDTO } : new List<ColonyDTO>()
+    };
+
+
+    return Results.Ok(governorDTO);
 });
+
 
 app.MapGet("api/colonyMinerals/colony/{colonyId}", (int colonyId) => {
     
@@ -222,3 +281,4 @@ app.MapGet("api/colonyMinerals/colony/{colonyId}", (int colonyId) => {
     });
 });
 app.Run();
+
