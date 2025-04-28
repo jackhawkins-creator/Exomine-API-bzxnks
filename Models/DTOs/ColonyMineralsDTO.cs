@@ -8,4 +8,6 @@
     public int MineralId {get; set;}
 
     public int ColonyTons {get; set;}
+
+    public MineralDTO? Mineral { get; set; }
  }
