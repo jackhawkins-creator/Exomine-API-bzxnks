@@ -100,7 +100,7 @@ app.MapGet("/api/facilities", () =>
 
 
 //fetch ALL colonyMinerals
-app.MapGet("/api/colonyminerals", () =>
+app.MapGet("/api/colonyMinerals", () =>
 {
     return colonyMinerals.Select(cm => new ColonyMineralDTO
     {
@@ -113,7 +113,7 @@ app.MapGet("/api/colonyminerals", () =>
 
 //fetch ALL facilityMinerals
 
-app.MapGet("/api/facilityminerals", (int? facilityId, int? mineralId, string? expand) =>
+app.MapGet("/api/facilityMinerals", (int? facilityId, int? mineralId, string? expand) =>
 {
     List<FacilityMineral> joinTables = facilityMinerals.ToList();
 
@@ -226,4 +226,33 @@ app.MapGet("api/facilityMinerals/{id}", (int id) =>
 
     });
 });
+
+// Fetch a single governor with their colony
+app.MapGet("/api/governors/{id}", (int id) =>
+{
+    Governor governor = governors.FirstOrDefault(g => g.Id == id);
+    if (governor == null)
+    {
+        return Results.NotFound();
+    }
+
+
+    Colony colony = colonies.FirstOrDefault(c => c.Id == governor.ColonyId);
+    var colonyDTO = colony != null ? new ColonyDTO { Id = colony.Id, Name = colony.Name } : null;
+
+
+    var governorDTO = new GovernorDTO
+    {
+        Id = governor.Id,
+        Name = governor.Name,
+        Active = governor.Active,
+        ColonyId = governor.ColonyId,
+        Colonies = colonyDTO != null ? new List<ColonyDTO> { colonyDTO } : new List<ColonyDTO>()
+    };
+
+
+    return Results.Ok(governorDTO);
+});
+
+
 app.Run();
