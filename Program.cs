@@ -75,10 +75,17 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/facilityminerals", (int facilityId, string expand) => {
+app.MapGet("/facilityminerals", (int facilityId, string expand) =>
+{
     List<FacilityMineral> joinTables = facilityMinerals.Where(jt => jt.FacilityId == facilityId).ToList();
 
-    
+    return joinTables.Select(jt => new FacilityMineralDTO
+    {
+        Id = jt.Id,
+        MineralId = jt.MineralId,
+        FacilityId = jt.FacilityId,
+        FacilityTons = jt.FacilityTons,
+    });
 });
 
 app.Run();
