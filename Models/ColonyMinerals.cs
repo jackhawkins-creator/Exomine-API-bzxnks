@@ -9,4 +9,6 @@ public class ColonyMineral {
     public int MineralId {get; set;}
 
     public int ColonyTons {get; set;}
+
+    
 }
