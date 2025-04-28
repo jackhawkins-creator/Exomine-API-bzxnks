@@ -42,11 +42,11 @@ List<Mineral> minerals = new List<Mineral>
 
 List<FacilityMineral> facilityMinerals = new List<FacilityMineral>
 {
-    new FacilityMineral { Id = 1, MineralId = 1, FacilitiesId = 3, FacilityTons = 25 },
-    new FacilityMineral { Id = 2, MineralId = 4, FacilitiesId = 5, FacilityTons = 40 },
-    new FacilityMineral { Id = 3, MineralId = 2, FacilitiesId = 1, FacilityTons = 30 },
-    new FacilityMineral { Id = 4, MineralId = 3, FacilitiesId = 4, FacilityTons = 30 },
-    new FacilityMineral { Id = 5, MineralId = 5, FacilitiesId = 2, FacilityTons = 40 }
+    new FacilityMineral { Id = 1, MineralId = 1, FacilityId = 3, FacilityTons = 25 },
+    new FacilityMineral { Id = 2, MineralId = 4, FacilityId = 5, FacilityTons = 40 },
+    new FacilityMineral { Id = 3, MineralId = 2, FacilityId = 1, FacilityTons = 30 },
+    new FacilityMineral { Id = 4, MineralId = 3, FacilityId = 4, FacilityTons = 30 },
+    new FacilityMineral { Id = 5, MineralId = 5, FacilityId = 2, FacilityTons = 40 }
 };
 
 List<Facility> facilities = new List<Facility>
@@ -75,6 +75,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.MapGet("/facilityminerals", (int facilityId, string expand) => {
+    List<FacilityMineral> joinTables = facilityMinerals.Where(jt => jt.FacilityId == facilityId).ToList();
 
+    
+});
 
 app.Run();
