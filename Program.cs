@@ -199,6 +199,12 @@ return Results.Ok(new FacilityMineralDTO
 app.MapGet("api/colonyMinerals/colony/{colonyId}", (int colonyId) => {
     
     ColonyMineral colonyMineral = colonyMinerals.FirstOrDefault(cm => cm.ColonyId == colonyId);
+
+    if (colonyMineral == null)
+    {
+        return Results.NotFound($"No colony mineral found with colony ID");
+    }
+
     Mineral mineral = minerals.FirstOrDefault(m => m.Id == colonyMineral.MineralId);
 
     return Results.Ok( new ColonyMineralDTO {
