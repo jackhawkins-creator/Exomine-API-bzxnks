@@ -16,6 +16,6 @@ public class GovernorDTO {
     public int ColonyId {get; set;}
 
 
-    public List<ColonyDTO> Colonies {get; set;}
+    public List<ColonyDTO>? Colonies {get; set;}
        
 }

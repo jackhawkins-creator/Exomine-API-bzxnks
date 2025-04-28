@@ -13,7 +13,7 @@ public class Governor {
     public int ColonyId {get; set;}
 
 
-    public List<Colony> Colonies {get; set;}
+    public List<Colony>? Colonies {get; set;}
 
 
 }
