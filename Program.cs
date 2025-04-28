@@ -112,28 +112,39 @@ app.MapGet("/api/colonyminerals", () =>
 });
 
 //fetch ALL facilityMinerals
-app.MapGet("/api/facilityminerals", () =>
+
+app.MapGet("/api/facilityminerals", (int? facilityId, int? mineralId, string? expand) =>
 {
-    return facilityMinerals.Select(fm => new FacilityMineralDTO
+    List<FacilityMineral> joinTables = facilityMinerals.ToList();
+
+    if (facilityId != null || mineralId != null)
     {
-        Id = fm.Id,
-        MineralId = fm.MineralId,
-        FacilityId = fm.FacilityId,
-        FacilityTons = fm.FacilityTons
-    });
-});
+        joinTables = joinTables.Where(jt =>
+        (facilityId == null || jt.FacilityId == facilityId) &&
+        (mineralId == null || jt.MineralId == mineralId)
+        ).ToList();
+    }
 
-
-app.MapGet("/facilityminerals", (int facilityId, string expand) =>
-{
-    List<FacilityMineral> joinTables = facilityMinerals.Where(jt => jt.FacilityId == facilityId).ToList();
-
-    return joinTables.Select(jt => new FacilityMineralDTO
+    return joinTables.Select(jt =>
     {
-        Id = jt.Id,
-        MineralId = jt.MineralId,
-        FacilityId = jt.FacilityId,
-        FacilityTons = jt.FacilityTons,
+        Mineral m = minerals.FirstOrDefault(m => m.Id == jt.MineralId);
+        Facility f = facilities.FirstOrDefault(f => f.Id == jt.FacilityId);
+
+        return new FacilityMineralDTO
+        {
+            Id = jt.Id,
+            MineralId = jt.MineralId,
+            FacilityId = jt.FacilityId,
+            FacilityTons = jt.FacilityTons,
+            Mineral = expand != "mineral" && m != null ? null : new MineralDTO {
+                Id = m.Id,
+                Name = m.Name
+            },
+            Facility = expand != "facility" && m != null ? null : new FacilityDTO {
+                Id = f.Id,
+                Name = f.Name
+            }
+        };
     });
 });
 

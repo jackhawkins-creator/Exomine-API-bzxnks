@@ -10,4 +10,8 @@ public class FacilityMineralDTO {
     public int FacilityId {get; set;}
 
     public int FacilityTons {get; set;}
+
+    public MineralDTO? Mineral {get; set;}
+
+    public FacilityDTO? Facility {get; set;}
 }
