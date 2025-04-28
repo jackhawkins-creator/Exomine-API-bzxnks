@@ -75,6 +75,52 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+//fetch ALL governors
+app.MapGet("/api/governors", () =>
+{
+    return governors.Select(g => new GovernorDTO
+    {
+        Id = g.Id,
+        Name = g.Name,
+        Active = g.Active,
+        ColonyId = g.ColonyId
+    });
+});
 
+//fetch ALL facilities
+app.MapGet("/api/facilities", () =>
+{
+    return facilities.Select(f => new FacilityDTO
+    {
+        Id = f.Id,
+        Name = f.Name,
+        Active = f.Active
+    });
+});
+
+
+//fetch ALL colonyMinerals
+app.MapGet("/api/colonyminerals", () =>
+{
+    return colonyMinerals.Select(cm => new ColonyMineralDTO
+    {
+        Id = cm.Id,
+        ColonyId = cm.ColonyId,
+        MineralId = cm.MineralId,
+        ColonyTons = cm.ColonyTons
+    });
+});
+
+//fetch ALL facilityMinerals
+app.MapGet("/api/facilityminerals", () =>
+{
+    return facilityMinerals.Select(fm => new FacilityMineralDTO
+    {
+        Id = fm.Id,
+        MineralId = fm.MineralId,
+        FacilitiesId = fm.FacilitiesId,
+        FacilityTons = fm.FacilityTons
+    });
+});
 
 app.Run();
