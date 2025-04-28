@@ -290,7 +290,27 @@ app.MapPut("/api/colonyMinerals/{id}", (int id, ColonyMineral colonyMineral) => 
 
 });
 
+
 app.MapPost("/colonyMinerals", (ColonyMineral colonyMineral) => {
+    ColonyMineral cm = colonyMinerals.FirstOrDefault(cm => cm.Id == id);
+    Colony colony = colonies.FirstOrDefault(c => c.Id == colonyMineral.ColonyId);
+    Mineral mineral = minerals.FirstOrDefault(m => m.Id == colonyMineral.MineralId);
+
+    if (cm == null) {
+        return Results.NotFound($"ColonyMineral id: {id} not found");
+    }
+
+    if (colonyMineral.ColonyId == null || colony == null) {
+        return Results.BadRequest($"ColonyId: {colonyMineral.ColonyId} must be a valid colony id");
+    }
+
+    if (colonyMineral.MineralId == null || mineral == null) {
+        return Results.BadRequest($"MineralId: {colonyMineral.MineralId} must be a valid colony id");
+    }
+
+    if (colonyMineral.ColonyTons == null) {
+        return Results.BadRequest("ColonyTons must be a valid integer");
+    }
 
 });
 
