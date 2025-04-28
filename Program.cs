@@ -263,4 +263,8 @@ app.MapPut("/api/colonyMinerals/{id}", (int id, ColonyMineral colonyMineral) => 
 
 });
 
+app.MapPost("/colonyMinerals", (ColonyMineral colonyMineral) => {
+
+});
+
 app.Run();
