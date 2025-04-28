@@ -5,7 +5,7 @@ public class FacilityMineral {
 
     public int MineralId {get; set;}
 
-    public int FacilitiesId {get; set;}
+    public int FacilityId {get; set;}
 
     public int FacilityTons {get; set;}
 }
