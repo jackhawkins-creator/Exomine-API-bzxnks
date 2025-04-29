@@ -369,6 +369,3 @@ app.MapGet("api/colonyMinerals/colony/{colonyId}", (int colonyId) =>
 
 app.Run();
 
-
-app.Run();
-
