@@ -253,7 +253,7 @@ app.MapGet("/api/governors/{id}", (int id) =>
     return Results.Ok(governorDTO);
 });
 
-//P to a colonyMineral by Id and body
+//PUT to a colonyMineral by Id and body
 app.MapPut("/api/colonyMinerals/{id}", (int id, ColonyMineral colonyMineral) =>
 {
 
@@ -291,7 +291,7 @@ app.MapPut("/api/colonyMinerals/{id}", (int id, ColonyMineral colonyMineral) =>
 
 });
 
-//POSTS a colonyMineral
+//POST a colonyMineral
 app.MapPost("/api/colonyMinerals", (ColonyMineral colonyMineral) =>
 {
     Colony colony = colonies.FirstOrDefault(c => c.Id == colonyMineral.ColonyId);
