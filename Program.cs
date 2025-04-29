@@ -273,7 +273,7 @@ app.MapPut("/api/colonyMinerals/{id}", (int id, ColonyMineral colonyMineral) =>
 
     if (mineral == null)
     {
-        return Results.BadRequest($"MineralId: {colonyMineral.MineralId} must be a valid colony id");
+        return Results.BadRequest($"MineralId: {colonyMineral.MineralId} must be a valid mineral id");
     }
 
 
@@ -304,7 +304,7 @@ app.MapPost("/api/colonyMinerals", (ColonyMineral colonyMineral) =>
 
     if (mineral == null)
     {
-        return Results.BadRequest($"MineralId: {colonyMineral.MineralId} must be a valid colony id");
+        return Results.BadRequest($"MineralId: {colonyMineral.MineralId} must be a valid mineral id");
     }
 
     colonyMineral.Id = colonyMinerals.Max(cm => cm.Id) + 1;
