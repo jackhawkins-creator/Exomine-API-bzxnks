@@ -64,6 +64,17 @@ List<Facility> facilities = new List<Facility>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowMyOrigin",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000") // Replace with the actual origin of your frontend
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -74,6 +85,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowMyOrigin");
 
 //fetch ALL governors
 app.MapGet("/api/governors", () =>
