@@ -98,7 +98,6 @@ app.MapGet("/api/facilities", () =>
     });
 });
 
-
 //fetch ALL colonyMinerals
 app.MapGet("/api/colonyMinerals", () =>
 {
@@ -112,7 +111,6 @@ app.MapGet("/api/colonyMinerals", () =>
 });
 
 //fetch ALL facilityMinerals
-
 app.MapGet("/api/facilityMinerals", (int? facilityId, int? mineralId, string? expand) =>
 {
     List<FacilityMineral> joinTables = facilityMinerals.ToList();
@@ -125,7 +123,8 @@ app.MapGet("/api/facilityMinerals", (int? facilityId, int? mineralId, string? ex
         ).ToList();
     }
 
-    if (expand == null) {
+    if (expand == null)
+    {
         expand = "";
     }
 
@@ -254,34 +253,36 @@ app.MapGet("/api/governors/{id}", (int id) =>
     return Results.Ok(governorDTO);
 });
 
-//Puts to a colonyMineral by Id and body
-app.MapPut("/api/colonyMinerals/{id}", (int id, ColonyMineral colonyMineral) => {
+//P to a colonyMineral by Id and body
+app.MapPut("/api/colonyMinerals/{id}", (int id, ColonyMineral colonyMineral) =>
+{
 
     ColonyMineral cm = colonyMinerals.FirstOrDefault(cm => cm.Id == id);
     Colony colony = colonies.FirstOrDefault(c => c.Id == colonyMineral.ColonyId);
     Mineral mineral = minerals.FirstOrDefault(m => m.Id == colonyMineral.MineralId);
 
-    if (cm == null) {
+    if (cm == null)
+    {
         return Results.NotFound($"ColonyMineral id: {id} not found");
     }
 
-    if (colonyMineral.ColonyId == null || colony == null) {
+    if (colony == null)
+    {
         return Results.BadRequest($"ColonyId: {colonyMineral.ColonyId} must be a valid colony id");
     }
 
-    if (colonyMineral.MineralId == null || mineral == null) {
+    if (mineral == null)
+    {
         return Results.BadRequest($"MineralId: {colonyMineral.MineralId} must be a valid colony id");
     }
 
-    if (colonyMineral.ColonyTons == null) {
-        return Results.BadRequest("ColonyTons must be a valid integer");
-    }
 
     cm.ColonyId = colonyMineral.ColonyId;
     cm.MineralId = colonyMineral.MineralId;
     cm.ColonyTons = colonyMineral.ColonyTons;
 
-    return Results.Accepted($"/colonyMinerals/{id}", new ColonyMineralDTO {
+    return Results.Accepted($"/colonyMinerals/{id}", new ColonyMineralDTO
+    {
         Id = cm.Id,
         ColonyId = cm.ColonyId,
         MineralId = cm.MineralId,
@@ -290,35 +291,56 @@ app.MapPut("/api/colonyMinerals/{id}", (int id, ColonyMineral colonyMineral) => 
 
 });
 
-
-app.MapPost("/colonyMinerals", (ColonyMineral colonyMineral) => {
-    ColonyMineral cm = colonyMinerals.FirstOrDefault(cm => cm.Id == id);
+//POSTS a colonyMineral
+app.MapPost("/api/colonyMinerals", (ColonyMineral colonyMineral) =>
+{
     Colony colony = colonies.FirstOrDefault(c => c.Id == colonyMineral.ColonyId);
     Mineral mineral = minerals.FirstOrDefault(m => m.Id == colonyMineral.MineralId);
 
-    if (cm == null) {
-        return Results.NotFound($"ColonyMineral id: {id} not found");
-    }
-
-    if (colonyMineral.ColonyId == null || colony == null) {
+    if (colony == null)
+    {
         return Results.BadRequest($"ColonyId: {colonyMineral.ColonyId} must be a valid colony id");
     }
 
-    if (colonyMineral.MineralId == null || mineral == null) {
+    if (mineral == null)
+    {
         return Results.BadRequest($"MineralId: {colonyMineral.MineralId} must be a valid colony id");
     }
 
-    if (colonyMineral.ColonyTons == null) {
-        return Results.BadRequest("ColonyTons must be a valid integer");
-    }
+    colonyMineral.Id = colonyMinerals.Max(cm => cm.Id) + 1;
+    colonyMinerals.Add(colonyMineral);
 
+    return Results.Created($"/api/colonyMinerals/{colonyMineral.Id}", new ColonyMineralDTO {
+        Id = colonyMineral.Id,
+        ColonyId = colonyMineral.ColonyId,
+        MineralId = colonyMineral.MineralId,
+        ColonyTons = colonyMineral.ColonyTons
+    });
 });
 
-app.Run();
+//PATCH a facilityMineral
+app.MapPatch("/api/facilityMinerals/{id}", (int id, FacilityMineral facilityMineral) => {
+    FacilityMineral fm = facilityMinerals.FirstOrDefault(fm => fm.Id == id);
 
+    if (fm == null) {
+        return Results.NotFound();
+    }
 
-app.MapGet("api/colonyMinerals/colony/{colonyId}", (int colonyId) => {
-    
+    fm.MineralId = facilityMineral.MineralId != null ? facilityMineral.MineralId : fm.MineralId;
+    fm.FacilityId = facilityMineral.FacilityId != null ? facilityMineral.FacilityId : fm.FacilityId;
+    fm.FacilityTons = facilityMineral.FacilityTons != null ? facilityMineral.FacilityTons : fm.FacilityTons;
+
+    return Results.Accepted($"api/facilityMinerals/{id}", new FacilityMineralDTO {
+        Id = fm.Id,
+        MineralId = fm.MineralId,
+        FacilityId = fm.FacilityId,
+        FacilityTons = fm.FacilityTons
+    });
+});
+
+app.MapGet("api/colonyMinerals/colony/{colonyId}", (int colonyId) =>
+{
+
     ColonyMineral colonyMineral = colonyMinerals.FirstOrDefault(cm => cm.ColonyId == colonyId);
 
     if (colonyMineral == null)
@@ -328,12 +350,14 @@ app.MapGet("api/colonyMinerals/colony/{colonyId}", (int colonyId) => {
 
     Mineral mineral = minerals.FirstOrDefault(m => m.Id == colonyMineral.MineralId);
 
-    return Results.Ok( new ColonyMineralDTO {
+    return Results.Ok(new ColonyMineralDTO
+    {
         Id = colonyMineral.Id,
         ColonyId = colonyMineral.ColonyId,
-        MineralId= colonyMineral.MineralId,
+        MineralId = colonyMineral.MineralId,
         ColonyTons = colonyMineral.ColonyTons,
-        Mineral = mineral == null ? null : new MineralDTO {
+        Mineral = mineral == null ? null : new MineralDTO
+        {
             Id = mineral.Id,
             Name = mineral.Name
         }
@@ -342,5 +366,9 @@ app.MapGet("api/colonyMinerals/colony/{colonyId}", (int colonyId) => {
 
     });
 });
+
+app.Run();
+
+
 app.Run();
 
