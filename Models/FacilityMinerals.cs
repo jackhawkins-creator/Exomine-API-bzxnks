@@ -8,4 +8,7 @@ public class FacilityMineral {
     public int? FacilityId {get; set;}
 
     public int? FacilityTons {get; set;}
+
+    public int? HourlyRate {get; set;}
+
 }
