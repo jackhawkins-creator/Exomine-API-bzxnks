@@ -14,11 +14,11 @@ List<Governor> governors = new List<Governor>
 
 List<Colony> colonies = new List<Colony>
 {
-    new Colony { Id = 1, Name = "Europa" },
-    new Colony { Id = 2, Name = "Tatooine" },
-    new Colony { Id = 3, Name = "Xandar" },
-    new Colony { Id = 4, Name = "Arrakis" },
-    new Colony { Id = 5, Name = "Oklahoma" }
+    new Colony { Id = 1, Name = "Europa", Currency = 100 },
+    new Colony { Id = 2, Name = "Tatooine", Currency = 75 },
+    new Colony { Id = 3, Name = "Xandar", Currency = 165 },
+    new Colony { Id = 4, Name = "Arrakis", Currency = 110 },
+    new Colony { Id = 5, Name = "Oklahoma", Currency = 190 }
 };
 
 List<ColonyMineral> colonyMinerals = new List<ColonyMineral>
@@ -240,7 +240,7 @@ app.MapGet("/api/governors/{id}", (int id) =>
 
 
     Colony colony = colonies.FirstOrDefault(c => c.Id == governor.ColonyId);
-    var colonyDTO = colony != null ? new ColonyDTO { Id = colony.Id, Name = colony.Name } : null;
+    var colonyDTO = colony != null ? new ColonyDTO { Id = colony.Id, Name = colony.Name, Currency = colony.Currency } : null;
 
 
     var governorDTO = new GovernorDTO
