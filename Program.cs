@@ -51,11 +51,11 @@ List<FacilityMineral> facilityMinerals = new List<FacilityMineral>
 
 List<Facility> facilities = new List<Facility>
 {
-    new Facility { Id = 1, Name = "Ganymede", Active = true },
-    new Facility { Id = 2, Name = "The Death Star", Active = false },
-    new Facility { Id = 3, Name = "S.H.I.E.L.D. Helicarrier", Active = true },
-    new Facility { Id = 4, Name = "Imperial Star Destroyer", Active = true },
-    new Facility { Id = 5, Name = "Pandora", Active = false }
+    new Facility { Id = 1, Name = "Ganymede", Active = true, Currency = 500 },
+    new Facility { Id = 2, Name = "The Death Star", Active = false, Currency = 800 },
+    new Facility { Id = 3, Name = "S.H.I.E.L.D. Helicarrier", Active = true, Currency = 300 },
+    new Facility { Id = 4, Name = "Imperial Star Destroyer", Active = true, Currency = 200 },
+    new Facility { Id = 5, Name = "Pandora", Active = false, Currency = 375 }
 };
 
 
@@ -109,7 +109,8 @@ app.MapGet("/api/facilities", () =>
     {
         Id = f.Id,
         Name = f.Name,
-        Active = f.Active
+        Active = f.Active,
+        Currency = f.Currency
     });
 });
 
@@ -187,7 +188,8 @@ app.MapGet("api/facilities/{id}", (int id) =>
     {
         Id = facility.Id,
         Name = facility.Name,
-        Active = facility.Active
+        Active = facility.Active,
+        Currency = facility.Currency
     });
 });
 
