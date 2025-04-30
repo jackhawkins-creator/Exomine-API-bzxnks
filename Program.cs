@@ -175,24 +175,6 @@ app.MapGet("api/minerals/{id}", (int id) =>
     });
 });
 
-//Fetches a Facility by id
-app.MapGet("api/facilities/{id}", (int id) =>
-{
-    Facility facility = facilities.FirstOrDefault(f => f.Id == id);
-    if (facility == null)
-    {
-        return Results.NotFound();
-    }
-
-    return Results.Ok(new FacilityDTO
-    {
-        Id = facility.Id,
-        Name = facility.Name,
-        Active = facility.Active,
-        Currency = facility.Currency
-    });
-});
-
 //Fetches ColonyMineral by Id
 app.MapGet("api/colonyMinerals/{id}", (int id) =>
 {
@@ -317,7 +299,8 @@ app.MapPost("/api/colonyMinerals", (ColonyMineral colonyMineral) =>
     colonyMineral.Id = colonyMinerals.Max(cm => cm.Id) + 1;
     colonyMinerals.Add(colonyMineral);
 
-    return Results.Created($"/api/colonyMinerals/{colonyMineral.Id}", new ColonyMineralDTO {
+    return Results.Created($"/api/colonyMinerals/{colonyMineral.Id}", new ColonyMineralDTO
+    {
         Id = colonyMineral.Id,
         ColonyId = colonyMineral.ColonyId,
         MineralId = colonyMineral.MineralId,
@@ -346,7 +329,7 @@ app.MapPatch("/api/facilityMinerals/{id}", (int id, FacilityMineralDTO updates) 
 
     if (updates.HourlyRate.HasValue)
         fm.FacilityTons = updates.HourlyRate.Value;
-        
+
     if (updates.MineralPrice.HasValue)
         fm.FacilityTons = updates.MineralPrice.Value;
 
@@ -360,7 +343,6 @@ app.MapPatch("/api/facilityMinerals/{id}", (int id, FacilityMineralDTO updates) 
         MineralPrice = fm.MineralPrice,
     });
 });
-
 
 app.MapGet("/api/colonyMinerals", (int? colonyId, string? expand) =>
 {
@@ -395,11 +377,14 @@ app.MapGet("/api/colonyMinerals", (int? colonyId, string? expand) =>
     });
 });
 
-app.MapPut("/api/facilityMinerals/waitOneHour", () => {
-    return facilityMinerals.Select(fm => {
+app.MapPut("/api/facilityMinerals/waitOneHour", () =>
+{
+    return facilityMinerals.Select(fm =>
+    {
         fm.FacilityTons += fm.HourlyRate;
 
-        return new FacilityMineralDTO {
+        return new FacilityMineralDTO
+        {
             Id = fm.Id,
             MineralId = fm.MineralId,
             FacilityId = fm.FacilityId,
@@ -408,6 +393,71 @@ app.MapPut("/api/facilityMinerals/waitOneHour", () => {
             MineralPrice = fm.MineralPrice,
         };
     });
+});
+
+app.MapPut("/api/colonies/{id}", (int id, Colony Update) =>
+{
+    Colony colony = colonies.FirstOrDefault(c => c.Id == id);
+
+    if (colony == null)
+    {
+        return Results.NotFound();
+    }
+
+    colony.Name = Update.Name;
+    colony.Currency = Update.Currency;
+
+    return Results.Ok(
+        new ColonyDTO
+        {
+            Id = colony.Id,
+            Name = colony.Name,
+            Currency = colony.Currency,
+        }
+    );
+});
+
+app.MapPut("/api/facilities/{id}", (int id, Facility Update) =>
+{
+    Facility facility = facilities.FirstOrDefault(c => c.Id == id);
+
+    if (facility == null)
+    {
+        return Results.NotFound();
+    }
+
+    facility.Name = Update.Name;
+    facility.Active = Update.Active;
+    facility.Currency = Update.Currency;
+
+    return Results.Ok(
+        new FacilityDTO
+        {
+            Id = facility.Id,
+            Name = facility.Name,
+            Active = facility.Active,
+            Currency = facility.Currency,
+        }
+    );
+});
+
+app.MapGet("/api/facilities/{id}", (int id) =>
+{
+    Facility facility = facilities.FirstOrDefault(c => c.Id == id);
+
+    if (facility == null)
+    {
+        return Results.NotFound();
+    }
+    return Results.Ok(
+        new FacilityDTO
+        {
+            Id = facility.Id,
+            Name = facility.Name,
+            Active = facility.Active,
+            Currency = facility.Currency,
+        }
+    );
 });
 
 app.Run();
