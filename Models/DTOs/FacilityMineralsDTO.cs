@@ -11,6 +11,8 @@ public class FacilityMineralDTO {
 
     public int? FacilityTons {get; set;}
 
+    public int? HourlyRate {get; set;}
+
     public MineralDTO? Mineral {get; set;}
 
     public FacilityDTO? Facility {get; set;}
