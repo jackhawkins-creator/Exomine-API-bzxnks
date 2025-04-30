@@ -42,11 +42,11 @@ List<Mineral> minerals = new List<Mineral>
 
 List<FacilityMineral> facilityMinerals = new List<FacilityMineral>
 {
-    new FacilityMineral { Id = 1, MineralId = 1, FacilityId = 3, FacilityTons = 25, HourlyRate = 3 },
-    new FacilityMineral { Id = 2, MineralId = 4, FacilityId = 5, FacilityTons = 40, HourlyRate = 5 },
-    new FacilityMineral { Id = 3, MineralId = 2, FacilityId = 1, FacilityTons = 30, HourlyRate = 7 },
-    new FacilityMineral { Id = 4, MineralId = 3, FacilityId = 4, FacilityTons = 30, HourlyRate = 2 },
-    new FacilityMineral { Id = 5, MineralId = 5, FacilityId = 2, FacilityTons = 40, HourlyRate = 10 }
+    new FacilityMineral { Id = 1, MineralId = 1, FacilityId = 3, FacilityTons = 25, HourlyRate = 3, MineralPrice = 50 },
+    new FacilityMineral { Id = 2, MineralId = 4, FacilityId = 5, FacilityTons = 40, HourlyRate = 5, MineralPrice = 70 },
+    new FacilityMineral { Id = 3, MineralId = 2, FacilityId = 1, FacilityTons = 30, HourlyRate = 7, MineralPrice = 85 },
+    new FacilityMineral { Id = 4, MineralId = 3, FacilityId = 4, FacilityTons = 30, HourlyRate = 2, MineralPrice = 40 },
+    new FacilityMineral { Id = 5, MineralId = 5, FacilityId = 2, FacilityTons = 40, HourlyRate = 10, MineralPrice = 90 }
 };
 
 List<Facility> facilities = new List<Facility>
@@ -143,6 +143,7 @@ app.MapGet("/api/facilityMinerals", (int? facilityId, int? mineralId, string? ex
             FacilityId = jt.FacilityId,
             FacilityTons = jt.FacilityTons,
             HourlyRate = jt.HourlyRate,
+            MineralPrice = jt.MineralPrice,
             Mineral = expand.Contains("mineral") && m != null ? new MineralDTO
             {
                 Id = m.Id,
@@ -225,7 +226,8 @@ app.MapGet("api/facilityMinerals/{id}", (int id) =>
         MineralId = facilityMineral.MineralId,
         FacilityId = facilityMineral.FacilityId,
         FacilityTons = facilityMineral.FacilityTons,
-        HourlyRate = facilityMineral.HourlyRate
+        HourlyRate = facilityMineral.HourlyRate,
+        MineralPrice = facilityMineral.MineralPrice,
     });
 });
 
@@ -342,6 +344,9 @@ app.MapPatch("/api/facilityMinerals/{id}", (int id, FacilityMineralDTO updates) 
 
     if (updates.HourlyRate.HasValue)
         fm.FacilityTons = updates.HourlyRate.Value;
+        
+    if (updates.MineralPrice.HasValue)
+        fm.FacilityTons = updates.MineralPrice.Value;
 
     return Results.Accepted($"/api/facilityMinerals/{id}", new FacilityMineralDTO
     {
@@ -349,7 +354,8 @@ app.MapPatch("/api/facilityMinerals/{id}", (int id, FacilityMineralDTO updates) 
         MineralId = fm.MineralId,
         FacilityId = fm.FacilityId,
         FacilityTons = fm.FacilityTons,
-        HourlyRate = fm.HourlyRate
+        HourlyRate = fm.HourlyRate,
+        MineralPrice = fm.MineralPrice,
     });
 });
 
@@ -397,6 +403,7 @@ app.MapPut("/api/facilityMinerals/waitOneHour", () => {
             FacilityId = fm.FacilityId,
             FacilityTons = fm.FacilityTons,
             HourlyRate = fm.HourlyRate,
+            MineralPrice = fm.MineralPrice,
         };
     });
 });
