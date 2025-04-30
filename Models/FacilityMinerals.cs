@@ -11,4 +11,6 @@ public class FacilityMineral {
 
     public int? HourlyRate {get; set;}
 
+    public int? MineralPrice {get; set;}
+
 }

@@ -14,11 +14,11 @@ List<Governor> governors = new List<Governor>
 
 List<Colony> colonies = new List<Colony>
 {
-    new Colony { Id = 1, Name = "Europa" },
-    new Colony { Id = 2, Name = "Tatooine" },
-    new Colony { Id = 3, Name = "Xandar" },
-    new Colony { Id = 4, Name = "Arrakis" },
-    new Colony { Id = 5, Name = "Oklahoma" }
+    new Colony { Id = 1, Name = "Europa", Currency = 100 },
+    new Colony { Id = 2, Name = "Tatooine", Currency = 75 },
+    new Colony { Id = 3, Name = "Xandar", Currency = 165 },
+    new Colony { Id = 4, Name = "Arrakis", Currency = 110 },
+    new Colony { Id = 5, Name = "Oklahoma", Currency = 190 }
 };
 
 List<ColonyMineral> colonyMinerals = new List<ColonyMineral>
@@ -42,20 +42,20 @@ List<Mineral> minerals = new List<Mineral>
 
 List<FacilityMineral> facilityMinerals = new List<FacilityMineral>
 {
-    new FacilityMineral { Id = 1, MineralId = 1, FacilityId = 3, FacilityTons = 25, HourlyRate = 3 },
-    new FacilityMineral { Id = 2, MineralId = 4, FacilityId = 5, FacilityTons = 40, HourlyRate = 5 },
-    new FacilityMineral { Id = 3, MineralId = 2, FacilityId = 1, FacilityTons = 30, HourlyRate = 7 },
-    new FacilityMineral { Id = 4, MineralId = 3, FacilityId = 4, FacilityTons = 30, HourlyRate = 2 },
-    new FacilityMineral { Id = 5, MineralId = 5, FacilityId = 2, FacilityTons = 40, HourlyRate = 10 }
+    new FacilityMineral { Id = 1, MineralId = 1, FacilityId = 3, FacilityTons = 25, HourlyRate = 3, MineralPrice = 50 },
+    new FacilityMineral { Id = 2, MineralId = 4, FacilityId = 5, FacilityTons = 40, HourlyRate = 5, MineralPrice = 70 },
+    new FacilityMineral { Id = 3, MineralId = 2, FacilityId = 1, FacilityTons = 30, HourlyRate = 7, MineralPrice = 85 },
+    new FacilityMineral { Id = 4, MineralId = 3, FacilityId = 4, FacilityTons = 30, HourlyRate = 2, MineralPrice = 40 },
+    new FacilityMineral { Id = 5, MineralId = 5, FacilityId = 2, FacilityTons = 40, HourlyRate = 10, MineralPrice = 90 }
 };
 
 List<Facility> facilities = new List<Facility>
 {
-    new Facility { Id = 1, Name = "Ganymede", Active = true },
-    new Facility { Id = 2, Name = "The Death Star", Active = false },
-    new Facility { Id = 3, Name = "S.H.I.E.L.D. Helicarrier", Active = true },
-    new Facility { Id = 4, Name = "Imperial Star Destroyer", Active = true },
-    new Facility { Id = 5, Name = "Pandora", Active = false }
+    new Facility { Id = 1, Name = "Ganymede", Active = true, Currency = 500 },
+    new Facility { Id = 2, Name = "The Death Star", Active = false, Currency = 800 },
+    new Facility { Id = 3, Name = "S.H.I.E.L.D. Helicarrier", Active = true, Currency = 300 },
+    new Facility { Id = 4, Name = "Imperial Star Destroyer", Active = true, Currency = 200 },
+    new Facility { Id = 5, Name = "Pandora", Active = false, Currency = 375 }
 };
 
 
@@ -109,7 +109,8 @@ app.MapGet("/api/facilities", () =>
     {
         Id = f.Id,
         Name = f.Name,
-        Active = f.Active
+        Active = f.Active,
+        Currency = f.Currency
     });
 });
 
@@ -143,6 +144,7 @@ app.MapGet("/api/facilityMinerals", (int? facilityId, int? mineralId, string? ex
             FacilityId = jt.FacilityId,
             FacilityTons = jt.FacilityTons,
             HourlyRate = jt.HourlyRate,
+            MineralPrice = jt.MineralPrice,
             Mineral = expand.Contains("mineral") && m != null ? new MineralDTO
             {
                 Id = m.Id,
@@ -170,23 +172,6 @@ app.MapGet("api/minerals/{id}", (int id) =>
     {
         Id = mineral.Id,
         Name = mineral.Name,
-    });
-});
-
-//Fetches a Facility by id
-app.MapGet("api/facilities/{id}", (int id) =>
-{
-    Facility facility = facilities.FirstOrDefault(f => f.Id == id);
-    if (facility == null)
-    {
-        return Results.NotFound();
-    }
-
-    return Results.Ok(new FacilityDTO
-    {
-        Id = facility.Id,
-        Name = facility.Name,
-        Active = facility.Active
     });
 });
 
@@ -225,7 +210,8 @@ app.MapGet("api/facilityMinerals/{id}", (int id) =>
         MineralId = facilityMineral.MineralId,
         FacilityId = facilityMineral.FacilityId,
         FacilityTons = facilityMineral.FacilityTons,
-        HourlyRate = facilityMineral.HourlyRate
+        HourlyRate = facilityMineral.HourlyRate,
+        MineralPrice = facilityMineral.MineralPrice,
     });
 });
 
@@ -240,7 +226,7 @@ app.MapGet("/api/governors/{id}", (int id) =>
 
 
     Colony colony = colonies.FirstOrDefault(c => c.Id == governor.ColonyId);
-    var colonyDTO = colony != null ? new ColonyDTO { Id = colony.Id, Name = colony.Name } : null;
+    var colonyDTO = colony != null ? new ColonyDTO { Id = colony.Id, Name = colony.Name, Currency = colony.Currency } : null;
 
 
     var governorDTO = new GovernorDTO
@@ -313,7 +299,8 @@ app.MapPost("/api/colonyMinerals", (ColonyMineral colonyMineral) =>
     colonyMineral.Id = colonyMinerals.Max(cm => cm.Id) + 1;
     colonyMinerals.Add(colonyMineral);
 
-    return Results.Created($"/api/colonyMinerals/{colonyMineral.Id}", new ColonyMineralDTO {
+    return Results.Created($"/api/colonyMinerals/{colonyMineral.Id}", new ColonyMineralDTO
+    {
         Id = colonyMineral.Id,
         ColonyId = colonyMineral.ColonyId,
         MineralId = colonyMineral.MineralId,
@@ -343,16 +330,19 @@ app.MapPatch("/api/facilityMinerals/{id}", (int id, FacilityMineralDTO updates) 
     if (updates.HourlyRate.HasValue)
         fm.FacilityTons = updates.HourlyRate.Value;
 
+    if (updates.MineralPrice.HasValue)
+        fm.FacilityTons = updates.MineralPrice.Value;
+
     return Results.Accepted($"/api/facilityMinerals/{id}", new FacilityMineralDTO
     {
         Id = fm.Id,
         MineralId = fm.MineralId,
         FacilityId = fm.FacilityId,
         FacilityTons = fm.FacilityTons,
-        HourlyRate = fm.HourlyRate
+        HourlyRate = fm.HourlyRate,
+        MineralPrice = fm.MineralPrice,
     });
 });
-
 
 app.MapGet("/api/colonyMinerals", (int? colonyId, string? expand) =>
 {
@@ -387,18 +377,87 @@ app.MapGet("/api/colonyMinerals", (int? colonyId, string? expand) =>
     });
 });
 
-app.MapPut("/api/facilityMinerals/waitOneHour", () => {
-    return facilityMinerals.Select(fm => {
+app.MapPut("/api/facilityMinerals/waitOneHour", () =>
+{
+    return facilityMinerals.Select(fm =>
+    {
         fm.FacilityTons += fm.HourlyRate;
 
-        return new FacilityMineralDTO {
+        return new FacilityMineralDTO
+        {
             Id = fm.Id,
             MineralId = fm.MineralId,
             FacilityId = fm.FacilityId,
             FacilityTons = fm.FacilityTons,
             HourlyRate = fm.HourlyRate,
+            MineralPrice = fm.MineralPrice,
         };
     });
+});
+
+app.MapPut("/api/colonies/{id}", (int id, Colony Update) =>
+{
+    Colony colony = colonies.FirstOrDefault(c => c.Id == id);
+
+    if (colony == null)
+    {
+        return Results.NotFound();
+    }
+
+    colony.Name = Update.Name;
+    colony.Currency = Update.Currency;
+
+    return Results.Ok(
+        new ColonyDTO
+        {
+            Id = colony.Id,
+            Name = colony.Name,
+            Currency = colony.Currency,
+        }
+    );
+});
+
+app.MapPut("/api/facilities/{id}", (int id, Facility Update) =>
+{
+    Facility facility = facilities.FirstOrDefault(c => c.Id == id);
+
+    if (facility == null)
+    {
+        return Results.NotFound();
+    }
+
+    facility.Name = Update.Name;
+    facility.Active = Update.Active;
+    facility.Currency = Update.Currency;
+
+    return Results.Ok(
+        new FacilityDTO
+        {
+            Id = facility.Id,
+            Name = facility.Name,
+            Active = facility.Active,
+            Currency = facility.Currency,
+        }
+    );
+});
+
+app.MapGet("/api/facilities/{id}", (int id) =>
+{
+    Facility facility = facilities.FirstOrDefault(c => c.Id == id);
+
+    if (facility == null)
+    {
+        return Results.NotFound();
+    }
+    return Results.Ok(
+        new FacilityDTO
+        {
+            Id = facility.Id,
+            Name = facility.Name,
+            Active = facility.Active,
+            Currency = facility.Currency,
+        }
+    );
 });
 
 app.Run();
