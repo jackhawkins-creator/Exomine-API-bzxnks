@@ -102,6 +102,27 @@ app.MapGet("/api/governors", () =>
     });
 });
 
+//fetch ALL minerals
+app.MapGet("/api/minerals", () =>
+{
+    return minerals.Select(m => new MineralDTO
+    {
+        Id = m.Id,
+        Name = m.Name,
+    });
+});
+
+//fetch ALL colonies
+app.MapGet("/api/colonies", () =>
+{
+    return colonies.Select(c => new ColonyDTO
+    {
+        Id = c.Id,
+        Name = c.Name,
+        Currency = c.Currency
+    });
+});
+
 //fetch ALL facilities
 app.MapGet("/api/facilities", () =>
 {
@@ -174,6 +195,24 @@ app.MapGet("api/minerals/{id}", (int id) =>
         Name = mineral.Name,
     });
 });
+
+//Fetches a colony by id
+app.MapGet("api/colonies/{id}", (int id) =>
+{
+    Colony colony = colonies.FirstOrDefault(m => m.Id == id);
+    if (colony == null)
+    {
+        return Results.NotFound();
+    }
+
+    return Results.Ok(new ColonyDTO
+    {
+        Id = colony.Id,
+        Name = colony.Name,
+        Currency = colony.Currency
+    });
+});
+
 
 //Fetches ColonyMineral by Id
 app.MapGet("api/colonyMinerals/{id}", (int id) =>
@@ -344,6 +383,35 @@ app.MapPatch("/api/facilityMinerals/{id}", (int id, FacilityMineralDTO updates) 
     });
 });
 
+//PATCH a colonyMineral
+app.MapPatch("/api/colonyMinerals/{id}", (int id, ColonyMineralDTO updates) =>
+{
+    ColonyMineral fm = colonyMinerals.FirstOrDefault(fm => fm.Id == id);
+
+    if (fm == null)
+    {
+        return Results.NotFound();
+    }
+
+    if (updates.ColonyId.HasValue)
+        fm.ColonyId = updates.ColonyId.Value;
+
+    if (updates.MineralId.HasValue)
+        fm.MineralId = updates.MineralId.Value;
+
+    if (updates.ColonyTons.HasValue)
+        fm.ColonyTons = updates.ColonyTons.Value;
+
+    return Results.Accepted($"/api/colonyMinerals/{id}", new ColonyMineralDTO
+    {
+        Id = fm.Id,
+        ColonyId= fm.ColonyId,
+        MineralId = fm.MineralId,
+        ColonyTons = fm.ColonyTons,
+    });
+});
+
+//Get all colonyMinerals
 app.MapGet("/api/colonyMinerals", (int? colonyId, string? expand) =>
 {
     List<ColonyMineral> filtered = colonyMinerals.ToList();
@@ -377,6 +445,7 @@ app.MapGet("/api/colonyMinerals", (int? colonyId, string? expand) =>
     });
 });
 
+
 app.MapPut("/api/facilityMinerals/waitOneHour", () =>
 {
     return facilityMinerals.Select(fm =>
@@ -395,7 +464,8 @@ app.MapPut("/api/facilityMinerals/waitOneHour", () =>
     });
 });
 
-app.MapPut("/api/colonies/{id}", (int id, Colony Update) =>
+//Update one colony
+app.MapPut("/api/colonies/{id}", (int id, ColonyDTO Update) =>
 {
     Colony colony = colonies.FirstOrDefault(c => c.Id == id);
 
@@ -405,6 +475,7 @@ app.MapPut("/api/colonies/{id}", (int id, Colony Update) =>
     }
 
     colony.Name = Update.Name;
+ 
     colony.Currency = Update.Currency;
 
     return Results.Ok(
@@ -417,17 +488,18 @@ app.MapPut("/api/colonies/{id}", (int id, Colony Update) =>
     );
 });
 
-app.MapPut("/api/facilities/{id}", (int id, Facility Update) =>
+//Update one facility
+app.MapPut("/api/facilities/{id}", (int id, FacilityDTO Update) =>
 {
     Facility facility = facilities.FirstOrDefault(c => c.Id == id);
 
-    if (facility == null)
-    {
-        return Results.NotFound();
-    }
 
     facility.Name = Update.Name;
     facility.Active = Update.Active;
+    if (Update.Currency < 0)
+    {
+        return Results.BadRequest("Currency must be a non-negative integer.");
+    }
     facility.Currency = Update.Currency;
 
     return Results.Ok(
@@ -435,12 +507,13 @@ app.MapPut("/api/facilities/{id}", (int id, Facility Update) =>
         {
             Id = facility.Id,
             Name = facility.Name,
-            Active = facility.Active,
-            Currency = facility.Currency,
+            Active = Update.Active,
+            Currency = Update.Currency,
         }
     );
 });
 
+//Get one facility.
 app.MapGet("/api/facilities/{id}", (int id) =>
 {
     Facility facility = facilities.FirstOrDefault(c => c.Id == id);
